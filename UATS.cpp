@@ -128,12 +128,14 @@ void printItemArrays()
 {
 	for (int outerIt{ 0 }; outerIt < typesOfItems; outerIt++)
 	{
-		std::cout << "Item Array #" << outerIt + 1 << ": ";
+		std::cout << "Item Array #" << outerIt + 1 << ": [";
 		for (int innerIt{ 0 }; innerIt < numberOfItems; innerIt++)
 		{
-			std::cout << arrayOfItems[outerIt][innerIt] << ' ';
+			std::cout << arrayOfItems[outerIt][innerIt];
+			if (innerIt != numberOfItems - 1)
+				std::cout << ',';
 		}
-		std::cout << '\n';
+		std::cout << ']' << '\n' << '\n';
 	}
 	std::cout << '\n';
 }
@@ -141,12 +143,14 @@ void printNFTs()
 {
 	for (int outerIt{ 0 }; outerIt < amountOfNFTs; outerIt++)
 	{
-		std::cout << "NFT #" << outerIt + 1 << ": ";
+		std::cout << "NFT #" << outerIt + 1 << ": [";
 		for (int innerIt{ 0 }; innerIt < typesOfItems; innerIt++)
 		{
-			std::cout << arrayOfNFTs[outerIt][innerIt] << ' ';
+			std::cout << arrayOfNFTs[outerIt][innerIt];
+			if (innerIt != typesOfItems-1)
+				std::cout << ',';
 		}
-		std::cout << '\n';
+		std::cout << ']' << '\n';
 	}
 	std::cout << '\n';
 }
