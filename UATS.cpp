@@ -35,7 +35,6 @@ void fillArrayOfItems()
 //std::cout << "ITEMARRAY assigning " << value << " to array " << outerIt << " at index " << innerIt << '\n';
 			value = value * 10;//set previous value to new value
 		}
-
 		valueKey = valueKey * 2;// double key value for next array
 	}
 };
@@ -62,24 +61,16 @@ double calculateNFT_Sum()
 
 bool compareNFT_Sums()
 {
-	bool passResult{};
 	if (amountOfNFTsCreated == 0)
-	{
 		return 1;
-	}
 	for (int it{ 0 }; it < amountOfNFTsCreated; it++)
 	{
 		if (calculateNFT_Sum() == NFTsums[it])
 		{
-//std::cout << "PASSRESULT 0" << '\n';
-			passResult = 0;
-			break;
-		}
-		else {
-			passResult = 1;
+			return 0;
 		}
 	}
-	return passResult;
+	return 1;
 }
 
 void fillArrayOfNFTs()
@@ -109,28 +100,29 @@ void fillArrayOfNFTs()
 }
 void uniqueGuaranteeCheck()
 {
-	int totalNonUniqueArrays{};
+	int totalNonUniqueNFTs{};
 	for (int it{ 0 }; it < amountOfNFTs - 1; it++)
 	{
-/*
-				std::cout << "Comparing sum for NFT #" << it + 1 << " against NFT#" << it + 2 << '\n';
-				std::cout << "NFT #" << it+1 << " = " << NFTsums[it] << '\n';
-				std::cout << "NFT #" << it+2 << " = " << NFTsums[it+1] << '\n';
-*/
+//std::cout << "Comparing sum for NFT #" << it + 1 << '-' << NFTsums[it] << " against NFT#" << it + 2 << '-' << NFTsums[it+1] << '\n';
 		if (NFTsums[it] == NFTsums[it + 1])//iterate through stored and sorted sums, break if duplicate found
 		{
 			std::cout << "NFT SUMS INDEX#" << it << '=' << NFTsums[it] << " which is the same as " << "NFT SUMS INDEX#" << it + 1 << '=' << NFTsums[it + 1] << '\n';
-			totalNonUniqueArrays++;
+			totalNonUniqueNFTs++;
 			assert(NFTsums[it] != NFTsums[it + 1]);
 		}
 	}
-	std::cout << "Non unique NFTs = " << totalNonUniqueArrays << '\n';
+	std::cout << "Non unique NFTs = " << totalNonUniqueNFTs << '\n';
 }
-void printNFT_Sums()
+void printItemArrays()
 {
-	for (int it{ 0 }; it < amountOfNFTs; it++)
+	for (int outerIt{ 0 }; outerIt < typesOfItems; outerIt++)
 	{
-		std::cout << "NFT #" << it + 1 << " SUM: " << NFTsums[it] << '\n';//+1 so that the first created is NFT #1
+		std::cout << "Item Array #" << outerIt + 1 << ": ";
+		for (int innerIt{ 0 }; innerIt < numberOfItems; innerIt++)
+		{
+			std::cout << arrayOfItems[outerIt][innerIt] << ' ';
+		}
+		std::cout << '\n';
 	}
 	std::cout << '\n';
 }
@@ -147,16 +139,11 @@ void printNFTs()
 	}
 	std::cout << '\n';
 }
-void printItemArrays()
+void printNFT_Sums()
 {
-	for (int outerIt{ 0 }; outerIt < typesOfItems; outerIt++)
+	for (int it{ 0 }; it < amountOfNFTs; it++)
 	{
-		std::cout << "Item Array #" << outerIt + 1 << ": ";
-		for (int innerIt{ 0 }; innerIt < numberOfItems; innerIt++)
-		{
-			std::cout << arrayOfItems[outerIt][innerIt] << ' ';
-		}
-		std::cout << '\n';
+		std::cout << "NFT #" << it + 1 << " SUM: " << NFTsums[it] << '\n';//+1 so that the first created is NFT #1
 	}
 	std::cout << '\n';
 }
@@ -165,15 +152,33 @@ int main()
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 	fillArrayOfItems();
 	fillArrayOfNFTs();
-
 	std::sort(NFTsums, NFTsums + amountOfNFTs);
-//printItemArrays();
-//printNFTs();
-//printNFT_Sums();
+
+	//printItemArrays();
+	//printNFTs();
+	//printNFT_Sums();
 
 	uniqueGuaranteeCheck();
+
 	std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+
 	std::cout << "Amount of NFTs created = " << amountOfNFTsCreated << '\n' << "Run Time: " << time_span.count() << '\n';
-	return 0;
+	std::cout << "Run again? Y/N" << '\n';
+	
+	bool cont{1};
+	while (cont)
+	{
+		char input{};
+		std::cin >> input;
+		if (input == 'Y' || input == 'y')
+		{
+			main();
+		}
+		else if (input == 'N' || input == 'n')
+		{
+			return 0;
+		}
+		std::cout << "Enter Y to continue or N to exit" << '\n';
+	}
 }
