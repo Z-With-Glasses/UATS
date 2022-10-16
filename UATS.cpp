@@ -1,13 +1,14 @@
 #include <assert.h>
 #include <chrono>
 #include <iostream>
+#include <iomanip>
 #include <random>
 #include <stdlib.h>
 #include <time.h>
 
 //DO NOT SET numberOfItems ABOVE 300 IF YOUR COMPILER'S LONG DOUBLE RESOLVES TO DOUBLE
-const int typesOfItems{ 5 };//(X)number of types of items in each NFT (eg if 5 then 5 unique items boots/chest/pants/gloves/hats(above 150 results in INF)
-const int numberOfItems{ 300 };//(N)number of items for each type of item (eg if 10 then 10 item boots/hats/pants etc.) !!!!INF IF ABOVE 300, long double limit for some compilers is 1e+309!!!!
+const int typesOfItems{ 4 };//(X)number of types of items in each NFT (eg if 5 then 5 unique items boots/chest/pants/gloves/hats(above 150 results in INF)
+const int numberOfItems{ 6 };//(N)number of items for each type of item (eg if 10 then 10 item boots/hats/pants etc.) !!!!INF IF ABOVE 300, long double limit for some compilers is 1e+309!!!!
 const int amountOfNFTs{ typesOfItems * numberOfItems };//amount of NFTs to be created, tOI * nOI is not the max but it is safe
 static double arrayOfItems[typesOfItems][numberOfItems]{};//X[array#]Y[boots,pants,etc.]
 static double NFT[typesOfItems]{};
@@ -185,25 +186,26 @@ int input()
 int main()
 {
 	std::cout << "Type Y for Yes or N for No." << '\n';
-	std::cout << "Run with fillArrayOfItems() debugging?" << '\n';
-	if (input())
-		FAOIdebugging = true;
-	std::cout << "Run with buildNFT() debugging?" << '\n';
-	if (input())
-		BNFTdebugging = true;
-	std::cout << "Run with fillArrayOfNFTs() debugging?" << '\n';
-	if (input())
-		FAONFTdebugging = true;
-	std::cout << "Run with uniqueGuaranteeCheck() debugging?" << '\n';
-	if (input())
-		UGCdebugging = true;
-
-	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+	std::cout << "Run with debugging?" << '\n';
+	if (input()) {
+		std::cout << "Run with fillArrayOfItems() debugging?" << '\n';
+		if (input())
+			FAOIdebugging = true;
+		std::cout << "Run with buildNFT() debugging?" << '\n';
+		if (input())
+			BNFTdebugging = true;
+		std::cout << "Run with fillArrayOfNFTs() debugging?" << '\n';
+		if (input())
+			FAONFTdebugging = true;
+		std::cout << "Run with uniqueGuaranteeCheck() debugging?" << '\n';
+		if (input())
+			UGCdebugging = true;
+	}
+	auto start = std::chrono::steady_clock::now();
 	fillArrayOfItems();
 	fillArrayOfNFTs();
-	std::sort(NFTsums, NFTsums + amountOfNFTs);
-	std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> time_taken = end - start;
 
 	std::cout << "Print Item Arrays?" << '\n';
 	if (input())
@@ -214,9 +216,10 @@ int main()
 	std::cout << "Print NFT sums?" << '\n';
 	if (input())
 		printNFT_Sums();
+	std::sort(NFTsums, NFTsums + amountOfNFTs);
 
 	uniqueGuaranteeCheck();
-	std::cout << "Amount of NFTs created = " << amountOfNFTsCreated << '\n' << "Run Time: " << time_span.count() << '\n';
+	std::cout << "Amount of NFTs created = " << amountOfNFTsCreated << '\n' << "Run Time: " << std::fixed << time_taken.count() << '\n';
 
 	//reset globals
 	arrayOfItems[typesOfItems - 1][numberOfItems - 1] = 0;
