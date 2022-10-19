@@ -5,20 +5,23 @@
 #include <random>
 #include <stdlib.h>
 #include <time.h>
+#include <vector>
 
-//DO NOT SET numberOfItems ABOVE 300 IF YOUR COMPILER'S LONG DOUBLE RESOLVES TO DOUBLE
-const int typesOfItems{ 4 };//(X)number of types of items in each NFT (eg if 5 then 5 unique items boots/chest/pants/gloves/hats(above 150 results in INF)
-const int numberOfItems{ 6 };//(N)number of items for each type of item (eg if 10 then 10 item boots/hats/pants etc.) !!!!INF IF ABOVE 300, long double limit for some compilers is 1e+309!!!!
-const int amountOfNFTs{ typesOfItems * numberOfItems };//amount of NFTs to be created, tOI * nOI is not the max but it is safe
-static double arrayOfItems[typesOfItems][numberOfItems]{};//X[array#]Y[boots,pants,etc.]
+const int typesOfItems{ 5 };//number of types of items in each NFT (eg if 5 then 5 unique items boots/chest/pants/gloves/hats (above 150 results in INF)
+const int numberOfItems{ 10 };//number of items for each type of item (eg if 10 then 10 item boots/hats/pants etc.) (above 22 results in overflow)
+const int amountOfNFTs{ 90500 };//amount of NFTs to be created
+static std::vector<std::vector <double>> vectorOfItems(typesOfItems, std::vector<double>(numberOfItems));
 static double NFT[typesOfItems]{};
-static double arrayOfNFTs[amountOfNFTs][typesOfItems]{};//X[array#]Y[boots,pants,etc.]
+static std::vector<std::vector <double>> vectorOfNFTs(amountOfNFTs, std::vector<double>(typesOfItems));
 static double NFTsums[amountOfNFTs]{};
 static int amountOfNFTsCreated{ 0 };
 bool FAOIdebugging{};
 bool BNFTdebugging{};
 bool FAONFTdebugging{};
 bool UGCdebugging{};
+bool oBNFTdebugging{};
+bool oFAONFTdebugging{};
+bool limitCheck{};
 
 
 std::mt19937 gen((unsigned)time(0));
@@ -37,11 +40,10 @@ void fillArrayOfItems()
 		double value{ valueKey };//set value to key initially
 		for (int innerIt{ 0 }; innerIt < numberOfItems; innerIt++)
 		{
-			arrayOfItems[outerIt][innerIt] = value;//set element to array
-
-			value = value * 10;//set previous value to new value
+			vectorOfItems[outerIt][innerIt] = value;//set element to array
 			if (FAOIdebugging)
 				std::cout << "ITEMARRAY assigning " << value << " to array " << outerIt << " at index " << innerIt << '\n';
+			value = value * 10;//set previous value to new value
 		}
 		valueKey = valueKey * 2;// double key value for next array
 	}
@@ -52,9 +54,9 @@ void buildNFT()
 	for (int it{ 0 }; it < typesOfItems; it++)
 	{
 		int randomItem{ random(0, numberOfItems - 1) };//-1 so the RNG generates from 0 to the size of the array - 1, since the array starts at 0 instead of 1
-		NFT[it] = arrayOfItems[it][randomItem];
+		NFT[it] = vectorOfItems[it][randomItem];
 		if (BNFTdebugging)
-			std::cout << "buildNFT() assigning " << arrayOfItems[it][randomItem] << " to index " << it << " RNG= " << randomItem << '\n';
+			std::cout << "buildNFT() assigning " << vectorOfItems[it][randomItem] << " to index " << it << " RNG= " << randomItem << '\n';
 	}
 }
 
@@ -94,9 +96,11 @@ void fillArrayOfNFTs()
 				duplicateNFT_Created = false;
 				amountOfNFTsCreated++;
 				NFTsums[outerIt] = calculateNFT_Sum();//store new sum
+				if(limitCheck)
+				std::cout << amountOfNFTsCreated << " NFTs created." << '\n';
 				for (int innerIt{ 0 }; innerIt < typesOfItems; innerIt++)//store new NFT
 				{
-					arrayOfNFTs[outerIt][innerIt] = NFT[innerIt];
+					vectorOfNFTs[outerIt][innerIt] = NFT[innerIt];
 					if (FAONFTdebugging)
 						std::cout << "NFTARRAYARRAY assigning " << NFT[innerIt] << " to array " << outerIt << " at index " << innerIt << '\n';
 				}
@@ -125,30 +129,15 @@ void uniqueGuaranteeCheck()
 	}
 	std::cout << "Non unique NFTs = " << totalNonUniqueNFTs << '\n';
 }
-void printItemArrays()
+void print2dVector(std::string string, std::vector<std::vector<double>> vector, int outerItRange, int innerItRange)
 {
-	for (int outerIt{ 0 }; outerIt < typesOfItems; outerIt++)
+	for (int outerIt{ 0 }; outerIt < outerItRange; outerIt++)
 	{
-		std::cout << "Item Array #" << outerIt + 1 << ": [";
-		for (int innerIt{ 0 }; innerIt < numberOfItems; innerIt++)
+		std::cout << string << outerIt + 1 << ": [";
+		for (int innerIt{ 0 }; innerIt < innerItRange; innerIt++)
 		{
-			std::cout << arrayOfItems[outerIt][innerIt];
-			if (innerIt != numberOfItems - 1)
-				std::cout << ',';
-		}
-		std::cout << ']' << '\n' << '\n';
-	}
-	std::cout << '\n';
-}
-void printNFTs()
-{
-	for (int outerIt{ 0 }; outerIt < amountOfNFTs; outerIt++)
-	{
-		std::cout << "NFT #" << outerIt + 1 << ": [";
-		for (int innerIt{ 0 }; innerIt < typesOfItems; innerIt++)
-		{
-			std::cout << arrayOfNFTs[outerIt][innerIt];
-			if (innerIt != typesOfItems-1)
+			std::cout << vector[outerIt][innerIt];
+			if (innerIt != innerItRange -1)
 				std::cout << ',';
 		}
 		std::cout << ']' << '\n';
@@ -185,21 +174,29 @@ int input()
 }
 int main()
 {
+	std::cout << std::fixed << std::setprecision(0);
 	std::cout << "Type Y for Yes or N for No." << '\n';
-	std::cout << "Run with debugging?" << '\n';
-	if (input()) {
-		std::cout << "Run with fillArrayOfItems() debugging?" << '\n';
-		if (input())
-			FAOIdebugging = true;
-		std::cout << "Run with buildNFT() debugging?" << '\n';
-		if (input())
-			BNFTdebugging = true;
-		std::cout << "Run with fillArrayOfNFTs() debugging?" << '\n';
-		if (input())
-			FAONFTdebugging = true;
-		std::cout << "Run with uniqueGuaranteeCheck() debugging?" << '\n';
-		if (input())
-			UGCdebugging = true;
+	std::cout << "Check for maximum amount of creatable NFTs with given parameters?" << '\n';
+	if (input())
+	{
+		limitCheck = true;
+	}
+	else {
+		std::cout << "Run with debugging?" << '\n';
+		if (input()) {
+			std::cout << "Run with fillArrayOfItems() debugging?" << '\n';
+			if (input())
+				FAOIdebugging = true;
+			std::cout << "Run with buildNFT() debugging?" << '\n';
+			if (input())
+				BNFTdebugging = true;
+			std::cout << "Run with fillArrayOfNFTs() debugging?" << '\n';
+			if (input())
+				FAONFTdebugging = true;
+			std::cout << "Run with uniqueGuaranteeCheck() debugging?" << '\n';
+			if (input())
+				UGCdebugging = true;
+		}
 	}
 	auto start = std::chrono::steady_clock::now();
 	fillArrayOfItems();
@@ -209,30 +206,28 @@ int main()
 
 	std::cout << "Print Item Arrays?" << '\n';
 	if (input())
-		printItemArrays();
+		print2dVector("Item Array #", vectorOfItems, typesOfItems, numberOfItems);
 	std::cout << "Print NFTs?" << '\n';
 	if (input())
-		printNFTs();
+	{
+		std::cout << "Sorted NFTs? Note that the list of sums will only match the list of NFTs if both are unsorted. " << '\n';
+		if (input())
+		{
+				sort(vectorOfNFTs.begin(), vectorOfNFTs.end());
+		}
+		print2dVector("NFT #", vectorOfNFTs, amountOfNFTs, typesOfItems);
+	}
 	std::cout << "Print NFT sums?" << '\n';
 	if (input())
+	{
+		std::cout << "Sorted sums? Note that the list of sums will only match the list of NFTs if both are unsorted." << '\n';
+		if (input())
+		{
+			std::sort(NFTsums, NFTsums + amountOfNFTs);
+		}
 		printNFT_Sums();
-	std::sort(NFTsums, NFTsums + amountOfNFTs);
+	}
 
 	uniqueGuaranteeCheck();
-	std::cout << "Amount of NFTs created = " << amountOfNFTsCreated << '\n' << "Run Time: " << std::fixed << time_taken.count() << '\n';
-
-	//reset globals
-	arrayOfItems[typesOfItems - 1][numberOfItems - 1] = 0;
-	NFT[typesOfItems - 1] = 0;
-	arrayOfNFTs[amountOfNFTs - 1][typesOfItems - 1] = 0;
-	NFTsums[amountOfNFTs - 1] = 0;
-	amountOfNFTsCreated = 0;
-	FAOIdebugging = false;
-	BNFTdebugging = false;
-	FAONFTdebugging = false;
-	UGCdebugging = false;
-
-	std::cout << "Run again? Y/N" << '\n';
-	if (input())
-		main();
+	std::cout << "Amount of NFTs created = " << amountOfNFTsCreated << '\n' << "Run Time: " << std::setprecision(10) << time_taken.count() << '\n';
 }
