@@ -1,6 +1,9 @@
 ﻿  UATS.cpp
+C:\Users\zgree\source\repos\UATS\UATS.cpp(177,36): warning C4244: 'argument': conversion from 'int' to 'WORD', possible loss of data
+C:\Users\zgree\source\repos\UATS\UATS.cpp(207,12): warning C4244: '=': conversion from 'int' to 'SHORT', possible loss of data
+C:\Users\zgree\source\repos\UATS\UATS.cpp(208,12): warning C4244: '=': conversion from 'int' to 'SHORT', possible loss of data
   Generating code
-  14 of 547 functions ( 2.6%) were compiled, the rest were copied from previous compilation.
+  17 of 579 functions ( 2.9%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
