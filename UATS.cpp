@@ -9,10 +9,10 @@
 #include <vector>
 #include <Windows.h>
 
-const int typesOfItems{ 2 };//number of types of items in each NFT (eg if 5 then 5 unique items: boots/chest/pants/gloves/hats) (above 150 results in INF)
-const int numberOfItems{ 3 };//number of items for each type of item (eg if 10 then 10 items: boots/hats/pants etc.) (above 20 results in overflow)
-const int amountOfNFTs{ 9 };//amount of NFTs to be created (set this to a high value,check for amount of creatable NFTs, then set that value here)
-static std::vector<std::vector <double>> vectorOfItems(typesOfItems, std::vector<double>(numberOfItems));
+const int typesOfItems{ 5 };//number of types of items in each NFT (eg if 5 then 5 unique items: boots/chest/pants/gloves/hats) (above 150 results in INF)
+const int amountOfItems{ 10 };//number of items for each type of item (eg if 10 then 10 items: boots/hats/pants etc.) (above 20 results in overflow)
+const int amountOfNFTs{ 90000 };//amount of NFTs to be created (set this to a high value,check for amount of creatable NFTs, then set that value here)
+static std::vector<std::vector <double>> vectorOfItems(typesOfItems, std::vector<double>(amountOfItems));
 static std::vector <double> NFT(typesOfItems);
 static std::vector<std::vector <double>> vectorOfNFTs(amountOfNFTs, std::vector<double>(typesOfItems));
 static std::vector <double> NFTsums(amountOfNFTs);
@@ -35,13 +35,35 @@ int random(int low, int high)
 	return dist(gen);
 }
 
+bool input()
+{
+	char input{};
+	bool cont{ 1 };
+	while (cont)
+	{
+		std::cin >> input;
+		if (input == 'Y' || input == 'y')
+		{
+			cont = false;
+			return true;
+		}
+		else if (input == 'N' || input == 'n')
+		{
+			cont = false;
+			return false;
+		}
+		std::cout << "Please enter Y for yes or N for no." << '\n';
+	}
+	return 0;
+}
+
 void fillVectorOfItems()
 {
 	static double valueKey{ 1 };
 	for (int outerIt{ 0 }; outerIt < typesOfItems; outerIt++)
 	{
 		double value{ valueKey };//set value to key initially
-		for (int innerIt{ 0 }; innerIt < numberOfItems; innerIt++)
+		for (int innerIt{ 0 }; innerIt < amountOfItems; innerIt++)
 		{
 			vectorOfItems[outerIt][innerIt] = value;//set element to Vector
 			if (FAOIdebugging)
@@ -56,7 +78,7 @@ void fillItemSums()
 {
 	for (int outerIt{ 0 }; outerIt < typesOfItems; outerIt++)
 	{
-		for (int innerIt{ 0 }; innerIt < numberOfItems; innerIt++)
+		for (int innerIt{ 0 }; innerIt < amountOfItems; innerIt++)
 		{
 			itemSums[outerIt] += vectorOfItems[outerIt][innerIt];//sum values of item array and assign to itemSums
 		}
@@ -67,7 +89,7 @@ void buildNFT()
 {
 	for (int it{ 0 }; it < typesOfItems; it++)
 	{
-		int randomItem{ random(0, numberOfItems - 1) };//-1 so the RNG generates from 0 to the size of the Vector - 1, since the Vector starts at 0 instead of 1
+		int randomItem{ random(0, amountOfItems - 1) };//-1 so the RNG generates from 0 to the size of the Vector - 1, since the Vector starts at 0 instead of 1
 		NFT[it] = vectorOfItems[it][randomItem];
 		if (BNFTdebugging)
 			std::cout << "buildNFT() assigning " << vectorOfItems[it][randomItem] << " to index " << it << " RNG= " << randomItem << '\n';
@@ -229,18 +251,21 @@ void clear() {
 }
 //_________________END CONSOLE MANIPULATION_________________//
 //_______________________SLOT MACHINE_______________________//
-int determineItemRarityColour()
+int determineItemRarityColour(double chosenItem, int outerIt)
 {
-	int itemRarity = random(0,100);
-	if (itemRarity <= 40)//40% common,gray
+	auto chosenItemIterator = std::find(vectorOfItems[outerIt].begin(), vectorOfItems[outerIt].end(), chosenItem);//returns iterator from vectorOfItems for chosenItem
+	float itemIndexLocation = chosenItemIterator - vectorOfItems[outerIt].begin();//index of item from result of find
+	float itemRarity = ((itemIndexLocation + 1) / amountOfItems) * 100;//index of item from chosen NFT in arrayOfItems / amount of items * 100 (eg. 1(item index) / 10(amountofItems) =.1 * 100 = 10 = item rarity common)
+
+	if (itemRarity <= 39)//0-39=40% common,gray
 		return 0;
-	else if (itemRarity <= 70)//30% uncommon, green
+	else if (itemRarity <= 69)//40-69=30% uncommon, green
 		return 1;
-	else if (itemRarity <= 90)//20% rare, blue
+	else if (itemRarity <= 89)//70-89=20% rare, blue
 		return 2;
-	else if (itemRarity <= 99)//9% very rare, purple
+	else if (itemRarity <= 99)//90-99=9% very rare, purple
 		return 3;
-	else if (itemRarity == 100)//1% ultra rare, yellow
+	else if (itemRarity == 100)//100=1% ultra rare, yellow
 		return 4;
 	else return 6;//red,error
 }
@@ -270,7 +295,7 @@ void slotMachineVectorGrab()
 			Sleep(100);
 			std::cout << "\b";
 		}
-		changeColour(colour[determineItemRarityColour()]);
+		changeColour(colour[determineItemRarityColour(vectorOfNFTs[randomNFT][outerIt], outerIt)]);
 		moveCursorToXY(displayedItems, 0);
 		std::cout << '*';
 		displayedItems++;
@@ -284,27 +309,6 @@ void slotMachineVectorGrab()
 	amountOfNFTsChosen++;
 }
 //_____________________END SLOT MACHINE_____________________//
-bool input()
-{
-	char input{};
-	bool cont{ 1 };
-	while (cont)
-	{
-		std::cin >> input;
-		if (input == 'Y' || input == 'y')
-		{
-			cont = false;
-			return true;
-		}
-		else if (input == 'N' || input == 'n')
-		{
-			cont = false;
-			return false;
-		}
-		std::cout << "Please enter Y for yes or N for no." << '\n';
-	}
-	return 0;
-}
 int main()
 {
 	std::cout << std::fixed << std::setprecision(0);
@@ -341,7 +345,7 @@ int main()
 
 	std::cout << "Print Item Vectors?" << '\n';
 	if (input())
-		print2dVector("Item Vector #", vectorOfItems, typesOfItems, numberOfItems);
+		print2dVector("Item Vector #", vectorOfItems, typesOfItems, amountOfItems);
 	std::cout << "Print Item Sums?" << '\n';
 	if (input())
 		printSums("Item Vector #", itemSums, typesOfItems);//print item sums
