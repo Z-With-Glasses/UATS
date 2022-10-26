@@ -373,18 +373,21 @@ int main()
 	uniqueGuaranteeCheck();
 	std::cout << "Amount of NFTs created = " << amountOfNFTsCreated << '\n' << "Run Time: " << std::setprecision(10) << time_taken.count() << '\n';	
 	std::cout << std::fixed << std::setprecision(0);
-	//___________________LIGHTS___________________//
-	bool spinning{true};
-	while (spinning && amountOfNFTsChosen != amountOfNFTs)
+	//begin slot machine
+	std::cout << '\n' << "Run slot machine?" << '\n';
+	if (input())
 	{
-		clear();
-		slotMachineVectorGrab();
-		std::cout << "Spin again?" << '\n';
-		if (!input())
-			spinning = false;
+		bool spinning{ true };
+		while (spinning && amountOfNFTsChosen != amountOfNFTs)
+		{
+			clear();
+			slotMachineVectorGrab();
+			std::cout << "Spin again?" << '\n';
+			if (!input())
+				spinning = false;
+		}
+		if (amountOfNFTsChosen == amountOfNFTs)
+			std::cout << "Sorry, all NFTs have been taken! Come back once we've made more!" << '\n';
 	}
-	if (amountOfNFTsChosen == amountOfNFTs)
-		std::cout << "Sorry, all NFTs have been taken! Come back once we've made more!" << '\n';
-
 	return 0;
 }

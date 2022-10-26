@@ -4,8 +4,8 @@ C:\Users\zgree\source\repos\UATS\UATS.cpp(229,12): warning C4244: '=': conversio
 C:\Users\zgree\source\repos\UATS\UATS.cpp(230,12): warning C4244: '=': conversion from 'int' to 'SHORT', possible loss of data
 C:\Users\zgree\source\repos\UATS\UATS.cpp(257,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
   Generating code
-  2 of 588 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+  1 of 588 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   UATS.vcxproj -> C:\Users\zgree\source\repos\UATS\Release\UATS.exe
